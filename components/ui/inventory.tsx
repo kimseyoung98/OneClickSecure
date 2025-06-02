@@ -7,9 +7,19 @@ import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Server, Plus, Search, Edit, Trash2, Circle, Users } from "lucide-react"
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+  DialogTrigger,
+} from "@/components/ui/dialog"
 
 export function Inventory() {
   const [searchTerm, setSearchTerm] = useState("")
+  const [open, setOpen] = useState(false)
+  const [newHost, setNewHost] = useState({ id: "", password: "", ip: "" })
 
   const hosts = [
     {
@@ -72,15 +82,66 @@ export function Inventory() {
       host.ip.includes(searchTerm) ||
       host.group.toLowerCase().includes(searchTerm.toLowerCase()),
   )
+    const handleInputChange = (field: string, value: string) => {
+    setNewHost((prev) => ({ ...prev, [field]: value }))
+  }
+
+  const handleAddHost = () => {
+    console.log("호스트 추가됨:", newHost)
+    // 실제 추가 로직은 여기서 수행
+    setOpen(false)
+    setNewHost({ id: "", password: "", ip: "" })
+  }
 
   return (
     <div className="p-6 space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold text-gray-900">인벤토리</h1>
-        <Button className="bg-blue-600 hover:bg-blue-700">
-          <Plus className="w-4 h-4 mr-2" />
-          호스트 추가
-        </Button>
+
+        <Dialog open={open} onOpenChange={setOpen}>
+          <DialogTrigger asChild>
+            <Button className="bg-blue-600 hover:bg-blue-700">
+              <Plus className="w-4 h-4 mr-2" />
+              호스트 추가
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle>호스트 추가</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4 py-2">
+              <div>
+                <label className="text-sm font-medium">ID</label>
+                <Input
+                  value={newHost.id}
+                  onChange={(e) => handleInputChange("id", e.target.value)}
+                  placeholder="예: root"
+                />
+              </div>
+              <div>
+                <label className="text-sm font-medium">비밀번호</label>
+                <Input
+                  type="password"
+                  value={newHost.password}
+                  onChange={(e) => handleInputChange("password", e.target.value)}
+                  placeholder="비밀번호 입력"
+                />
+              </div>
+              <div>
+                <label className="text-sm font-medium">IP 주소</label>
+                <Input
+                  value={newHost.ip}
+                  onChange={(e) => handleInputChange("ip", e.target.value)}
+                  placeholder="예: 192.168.1.100"
+                />
+              </div>
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setOpen(false)}>취소</Button>
+              <Button onClick={handleAddHost}>추가</Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
 
       <Tabs defaultValue="hosts" className="space-y-6">
